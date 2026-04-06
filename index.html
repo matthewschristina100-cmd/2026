@@ -205,7 +205,6 @@ textarea:focus{outline:none;border-color:#0F6E56;}
 
 <!-- LOGINS -->
 <div class="page on" id="page-logins">
-<div class="encourage">Tap any login value to select and copy it. Everything in one place — no memorizing required.</div>
 <div class="card">
   <div class="card-title">Universal login — all apps</div>
   <div class="login-grid">
@@ -219,11 +218,45 @@ textarea:focus{outline:none;border-color:#0F6E56;}
 
 <!-- DAILY -->
 <div class="page" id="page-daily">
-<div class="sync-bar" id="sync-bar"><div class="sync-dot" id="sync-dot"></div><span id="sync-msg">Loading...</span></div>
 <div class="day-header">
   <div>
     <div class="day-title" id="today-date"></div>
     <div class="day-sub">Auto-saves and submits at midnight</div>
+  </div>
+</div>
+
+<!-- HEAVENLY MOTHER'S COMMANDS -->
+<div style="background:#0F6E56;border-radius:12px;padding:14px 16px;margin-bottom:14px;">
+  <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.7);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Heavenly Mother's command — not a suggestion</div>
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
+    <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:10px 10px;display:flex;align-items:center;gap:8px;">
+      <div style="font-size:18px;">🥗</div>
+      <div>
+        <div style="font-size:13px;font-weight:600;color:white;">Eat Healthy</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.7);">Nourish your body</div>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:10px 10px;display:flex;align-items:center;gap:8px;">
+      <div style="font-size:18px;">🚶</div>
+      <div>
+        <div style="font-size:13px;font-weight:600;color:white;">Get Exercise</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.7);">Move your body daily</div>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:10px 10px;display:flex;align-items:center;gap:8px;">
+      <div style="font-size:18px;">🧠</div>
+      <div>
+        <div style="font-size:13px;font-weight:600;color:white;">Do Therapy</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.7);">CBT — renew your mind</div>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:10px 10px;display:flex;align-items:center;gap:8px;">
+      <div style="font-size:18px;">🌙</div>
+      <div>
+        <div style="font-size:13px;font-weight:600;color:white;">Get Proper Rest</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.7);">Sleep is sacred</div>
+      </div>
+    </div>
   </div>
 </div>
 <div class="kpi-grid">
@@ -466,11 +499,12 @@ const CHECKS = [
   {t:"Morning", txt:"My Memo — log preaching goals", c:"#0F6E56"},
   {t:"Morning", txt:"My Page — read or listen to Bible section", c:"#185FA5"},
   {t:"Morning", txt:"My Page — log reading completion", c:"#185FA5"},
-  {t:"Daily", txt:"Personality — reflecting Mother's 13 teachings?", c:"#993C1D"},
   {t:"Daily", txt:"Forgiveness — seek, extend, release resentment", c:"#3B6D11"},
   {t:"Daily", txt:"Mother's teachings — review one teaching", c:"#993556"},
   {t:"Daily", txt:"Good deed of the day", c:"#0F6E56"},
   {t:"Daily", txt:"Gratitude journal", c:"#3B6D11"},
+  {t:"Daily", txt:"CBT therapy — thought record or schema work", c:"#534AB7"},
+  {t:"Lunch", txt:"Eat a healthy lunch", c:"#3B6D11"},
   {t:"Largest meal", txt:"D3 + K2 + Omega-3 (with food containing fat)", c:"#3B6D11"},
   {t:"Afternoon", txt:"EDULMS — progress toward monthly curriculum", c:"#854F0B"},
   {t:"Afternoon", txt:"Neuro-Mag L-Threonate — 2 capsules with snack", c:"#534AB7"},
@@ -482,7 +516,7 @@ const CHECKS = [
   {t:"Service day", txt:"WMC QR Code — scan at service or education", c:"#993C1D"},
   {t:"Evening", txt:"KSM-66 Ashwagandha 500mg — with dinner", c:"#3B6D11"},
   {t:"1 hr before bed", txt:"Magnesium Glycinate 400mg + Neuro-Mag 1 capsule", c:"#534AB7"},
-  {t:"Before bed", txt:"Melatonin — HALF a gummy only (2.5mg max)", c:"#993C1D"},
+  {t:"Before bed", txt:"25-minute walk completed today", c:"#0F6E56"},
 ];
 
 // KPI indices
@@ -1002,27 +1036,81 @@ function buildDashboard() {
   });
   html += `</div>`;
 
-  // Weekly trend
-  html += `<div class="card"><div class="card-title">Weekly averages — last 12 weeks</div>`;
+  // ── Weekly preaching average
+  const G = appData.goals || {};
+  const weeksTracked = [];
   for (let w=11; w>=0; w--) {
     const wEnd = new Date(now); wEnd.setDate(now.getDate() - w*7);
     const wStart = new Date(wEnd); wStart.setDate(wEnd.getDate()-6);
-    const wDays = [];
-    for (let d=new Date(wStart); d<=wEnd; d.setDate(d.getDate()+1)) {
-      const k = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-      if (hist[k]) wDays.push(hist[k]);
-    }
-    const wAvg = wDays.length ? Math.round(wDays.reduce((a,d)=>a+(d.done/d.total*100),0)/wDays.length) : null;
-    const wLabel = wEnd.toLocaleDateString('en-US',{month:'short',day:'numeric'});
-    const barColor = !wAvg?'#F0F0F0':wAvg>=86?'#0F6E56':wAvg>=57?'#5DCAA5':wAvg>=29?'#EF9F27':'#F09595';
-    html += `<div class="week-bar-row"><span class="week-bar-label">${wLabel}</span><div class="week-bar-track"><div class="week-bar-fill" style="width:${wAvg||0}%;background:${barColor};"></div></div><span class="week-bar-pct" style="color:${barColor!='#F0F0F0'?barColor:'#999999'}">${wAvg!==null?wAvg+'%':'—'}</span></div>`;
+    // Build week key matching our weekKey() format
+    const wMon = new Date(wStart);
+    const wk = wMon.getFullYear()+'-W'+String(wMon.getMonth()+1).padStart(2,'0')+'-'+String(wMon.getDate()).padStart(2,'0');
+    const preachCount = G['simple_'+wk] || 0;
+    const label = wEnd.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    weeksTracked.push({label, preachCount, wk});
   }
-  html += `</div>`;
+  const maxPreach = Math.max(...weeksTracked.map(w=>w.preachCount), WEEKLY_TARGET, 1);
+  html += `<div class="card"><div class="card-title">Simple preaching — weekly counts (target: ${WEEKLY_TARGET}/wk)</div>`;
+  weeksTracked.forEach(w => {
+    const pct = Math.round((w.preachCount/maxPreach)*100);
+    const onTarget = w.preachCount >= WEEKLY_TARGET;
+    const barColor = onTarget ? '#0F6E56' : w.preachCount >= WEEKLY_TARGET*0.6 ? '#EF9F27' : '#F09595';
+    const targetLine = Math.round((WEEKLY_TARGET/maxPreach)*100);
+    html += `<div class="week-bar-row">
+      <span class="week-bar-label">${w.label}</span>
+      <div class="week-bar-track" style="position:relative;">
+        <div class="week-bar-fill" style="width:${pct}%;background:${barColor};"></div>
+        <div style="position:absolute;top:0;left:${targetLine}%;width:2px;height:100%;background:#534AB7;opacity:0.5;"></div>
+      </div>
+      <span class="week-bar-pct" style="color:${barColor};">${w.preachCount}</span>
+    </div>`;
+  });
+  const totalPreachLogged = weeksTracked.reduce((a,w)=>a+w.preachCount,0);
+  const weeksWithData = weeksTracked.filter(w=>w.preachCount>0).length;
+  const avgPerWeek = weeksWithData ? Math.round(totalPreachLogged/weeksWithData) : 0;
+  html += `<div style="font-size:12px;color:#555555;margin-top:8px;padding-top:8px;border-top:1px solid #F0F0F0;">
+    Average: <strong>${avgPerWeek}/week</strong> over last ${weeksWithData} active weeks &nbsp;·&nbsp; Purple line = target (${WEEKLY_TARGET})
+  </div></div>`;
 
-  // Monthly
+  // ── Weekly sermon + countermeasure practice average
+  // Sermon practice (sp) and countermeasure practice (cp) are logged as totals
+  // Show running weekly breakdown based on goal counters
+  const spTotal = G['sp'] || 0;
+  const cpTotal = G['cp'] || 0;
+  const seTotal = G['se'] || 0;
+  const ceTotal = G['ce'] || 0;
+  const weeksElapsed = Math.max(1, Math.ceil((now - START_DATE) / (7*86400000)));
+  const spAvgWeek = (spTotal / weeksElapsed).toFixed(1);
+  const cpAvgWeek = (cpTotal / weeksElapsed).toFixed(1);
+  const seAvgWeek = (seTotal / weeksElapsed).toFixed(1);
+  const ceAvgWeek = (ceTotal / weeksElapsed).toFixed(1);
+
+  html += `<div class="card"><div class="card-title">Sermon + countermeasure practice — weekly averages</div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px;">
+      <div class="dash-metric" style="background:#E1F5EE;">
+        <div class="dash-metric-num" style="color:#0F6E56;">${spAvgWeek}</div>
+        <div class="dash-metric-label">Standard sermon<br>practices/week</div>
+      </div>
+      <div class="dash-metric" style="background:#E6F1FB;">
+        <div class="dash-metric-num" style="color:#185FA5;">${cpAvgWeek}</div>
+        <div class="dash-metric-label">Countermeasure<br>practices/week</div>
+      </div>
+      <div class="dash-metric" style="background:#EAF3DE;">
+        <div class="dash-metric-num" style="color:#3B6D11;">${seAvgWeek}</div>
+        <div class="dash-metric-label">Sermon<br>evaluations/week</div>
+      </div>
+      <div class="dash-metric" style="background:#EEEDFE;">
+        <div class="dash-metric-num" style="color:#534AB7;">${ceAvgWeek}</div>
+        <div class="dash-metric-label">Countermeasure<br>evaluations/week</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:#999999;">Based on ${weeksElapsed} weeks elapsed since Jan 1, 2026 · Total: ${spTotal} standard, ${cpTotal} countermeasure practices</div>
+  </div>`;
+
+  // Monthly checklist averages
   const months = {};
   keys.forEach(k => { const mk=k.slice(0,7); if(!months[mk]) months[mk]=[]; months[mk].push(hist[k]); });
-  html += `<div class="card"><div class="card-title">Monthly averages</div>`;
+  html += `<div class="card"><div class="card-title">Monthly checklist averages</div>`;
   Object.keys(months).sort().forEach(mk => {
     const data = months[mk];
     const avg = Math.round(data.reduce((a,d)=>a+(d.done/d.total*100),0)/data.length);
