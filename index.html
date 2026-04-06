@@ -391,7 +391,7 @@ const WEEKLY_TARGET = 25;
 const MONTHLY_TARGET = 100;
 
 // ── SYNC ─────────────────────────────────────────────────────
-const useSupabase = true;
+const useSupabase = SUPABASE_URL !== 'https://jyhmgxcgpcswzyljniwm.supabase.co';
 
 async function dbGet(key) {
   if (useSupabase) {
